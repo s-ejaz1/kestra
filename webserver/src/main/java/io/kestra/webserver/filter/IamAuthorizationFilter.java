@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.reactivestreams.Publisher;
 
+import io.kestra.core.exceptions.ForbiddenException;
 import io.kestra.core.models.iam.Action;
 import io.kestra.core.models.iam.Permission;
 import io.kestra.webserver.controllers.ErrorController;
@@ -19,8 +20,6 @@ import io.kestra.webserver.services.UserGrants;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.http.HttpMethod;
 import io.micronaut.http.HttpRequest;
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Filter;
 import io.micronaut.http.filter.HttpServerFilter;
@@ -103,29 +102,34 @@ public class IamAuthorizationFilter implements HttpServerFilter {
             return chain.proceed(request);
         }
 
-        return Mono.fromCallable(() -> isAllowed(request, user.get()))
+        return Mono.fromCallable(() -> denial(request, user.get()))
             .subscribeOn(Schedulers.boundedElastic())
             .flux()
-            .flatMap(allowed -> allowed ? chain.proceed(request) : Mono.just(HttpResponse.status(HttpStatus.FORBIDDEN)));
+            .flatMap(denial -> denial.isEmpty() ? chain.proceed(request) : Mono.error(new ForbiddenException(denial.get())));
     }
 
+    /**
+     * Why the caller may not use the route, or empty when they may.
+     */
     @SuppressWarnings("rawtypes")
-    private boolean isAllowed(HttpRequest<?> request, AuthenticatedUser user) {
+    private Optional<String> denial(HttpRequest<?> request, AuthenticatedUser user) {
         Optional<RouteMatch> routeMatch = RouteMatchUtils.findRouteMatch(request);
         if (routeMatch.isEmpty() || !(routeMatch.get() instanceof MethodBasedRouteMatch<?, ?> method)) {
-            return true;
+            return Optional.empty();
         }
 
         Class<?> controller = method.getDeclaringType();
         boolean isRead = HttpMethod.GET == request.getMethod() || HttpMethod.HEAD == request.getMethod();
         if (OPEN_CONTROLLERS.contains(controller) || (isRead && READ_OPEN_CONTROLLERS.contains(controller))) {
-            return true;
+            return Optional.empty();
         }
 
         UserGrants grants = UserGrants.of(request, user, iamService);
         Permission permission = PERMISSIONS.get(controller);
         if (permission == null) {
-            return grants.allowsOnInstance(Permission.ROLE, ADMIN_ACTIONS);
+            return grants.allowsOnInstance(Permission.ROLE, ADMIN_ACTIONS)
+                ? Optional.empty()
+                : Optional.of("The user '%s' is not allowed to use %s, which is reserved to administrators.".formatted(user.email(), request.getPath()));
         }
 
         String namespace = null;
@@ -136,7 +140,15 @@ public class IamAuthorizationFilter implements HttpServerFilter {
                 actions = READ_ACTIONS;
             }
         }
-        return grants.allows(permission, actions, namespace);
+        if (grants.allows(permission, actions, namespace)) {
+            return Optional.empty();
+        }
+        return Optional.of("The user '%s' needs one of the actions %s on %s%s; ask an administrator to add it to one of their roles.".formatted(
+            user.email(),
+            actions.stream().map(Action::name).sorted().toList(),
+            permission,
+            namespace == null ? "" : " in namespace '%s'".formatted(namespace)
+        ));
     }
 
     static Optional<Permission> permissionOf(Class<?> controller) {

@@ -57,6 +57,7 @@ class IamAuthorizationFilterTest {
         );
 
         assertThat(exception.getStatus().getCode()).isEqualTo(HttpStatus.FORBIDDEN.getCode());
+        assertThat(exception.getResponse().getBody(String.class)).hasValueSatisfying(body -> assertThat(body).contains("CREATE").contains("FLOW").contains(user.email()));
     }
 
     @Test
