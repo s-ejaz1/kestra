@@ -5,10 +5,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import io.kestra.core.junit.annotations.KestraTest;
+import io.kestra.core.models.QueryFilter;
 import io.kestra.core.models.secret.PersistedSecretMetadata;
+import io.kestra.core.repositories.SecretMetadataRepositoryInterface;
 import io.kestra.core.secret.SecretNotFoundException;
 import io.kestra.core.secret.SecretService;
 import io.kestra.core.storages.StorageInterface;
@@ -16,6 +19,7 @@ import io.kestra.webserver.filter.TestAuthFilter;
 import io.kestra.webserver.models.api.secret.ApiSecretListResponse;
 import io.kestra.webserver.models.api.secret.ApiSecretMeta;
 import io.kestra.webserver.services.BasicAuthService;
+import io.kestra.webserver.services.SecretStoreService;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpStatus;
@@ -47,6 +51,20 @@ class NamespaceSecretControllerTest {
 
     @Inject
     BasicAuthService basicAuthService;
+
+    @Inject
+    SecretMetadataRepositoryInterface secretMetadataRepository;
+
+    @Inject
+    SecretStoreService secretStoreService;
+
+    @AfterEach
+    void deleteStoredSecrets() throws Exception {
+        List<QueryFilter> filters = List.of(QueryFilter.builder().field(QueryFilter.Field.NAMESPACE).operation(QueryFilter.Op.STARTS_WITH).value(NAMESPACE).build());
+        for (PersistedSecretMetadata secret : secretMetadataRepository.find(MAIN_TENANT, filters)) {
+            secretStoreService.delete(MAIN_TENANT, secret.getNamespace(), secret.getName());
+        }
+    }
 
     @Test
     void shouldStoreEncryptedSecretResolvableFromChildNamespace() throws Exception {
@@ -96,7 +114,7 @@ class NamespaceSecretControllerTest {
 
         HttpStatus status = client.toBlocking().exchange(HttpRequest.DELETE(BASE + "/to_delete")).getStatus();
 
-        assertThat(status).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(status.getCode()).isEqualTo(HttpStatus.NO_CONTENT.getCode());
         assertThatThrownBy(() -> secretService.findSecret(MAIN_TENANT, NAMESPACE, "to_delete")).isInstanceOf(SecretNotFoundException.class);
     }
 
@@ -106,7 +124,7 @@ class NamespaceSecretControllerTest {
             () -> client.toBlocking().exchange(HttpRequest.DELETE(BASE + "/unknown"))
         );
 
-        assertThat(exception.getStatus()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(exception.getStatus().getCode()).isEqualTo(HttpStatus.NOT_FOUND.getCode());
     }
 
     @Test
@@ -115,7 +133,7 @@ class NamespaceSecretControllerTest {
             () -> client.toBlocking().exchange(HttpRequest.PUT(BASE, new NamespaceSecretController.SecretRequest("not a key", "value", null, null)))
         );
 
-        assertThat(exception.getStatus()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(exception.getStatus().getCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY.getCode());
     }
 
     @Test
@@ -129,7 +147,7 @@ class NamespaceSecretControllerTest {
                 () -> client.toBlocking().exchange(HttpRequest.PUT(BASE, new NamespaceSecretController.SecretRequest("anonymous", "value", null, null)))
             );
 
-            assertThat(exception.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(exception.getStatus().getCode()).isEqualTo(HttpStatus.UNAUTHORIZED.getCode());
         } finally {
             TestAuthFilter.ENABLED = true;
         }
