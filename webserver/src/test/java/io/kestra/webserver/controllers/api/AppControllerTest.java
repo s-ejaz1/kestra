@@ -2,6 +2,7 @@ package io.kestra.webserver.controllers.api;
 
 import org.junit.jupiter.api.Test;
 
+import io.kestra.core.http.KestraMediaTypes;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.apps.App;
 import io.kestra.core.models.iam.IamBinding;
@@ -9,7 +10,6 @@ import io.kestra.core.utils.IdUtils;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.http.MediaType;
 import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
@@ -101,6 +101,6 @@ class AppControllerTest {
     }
 
     private static <T> MutableHttpRequest<T> yaml(MutableHttpRequest<T> request) {
-        return request.contentType(MediaType.APPLICATION_YAML);
+        return request.contentType(KestraMediaTypes.APPLICATION_X_YAML);
     }
 }

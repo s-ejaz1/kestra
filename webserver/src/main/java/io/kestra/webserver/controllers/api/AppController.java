@@ -3,6 +3,7 @@ package io.kestra.webserver.controllers.api;
 import java.util.List;
 
 import io.kestra.core.exceptions.ForbiddenException;
+import io.kestra.core.http.KestraMediaTypes;
 import io.kestra.core.models.apps.App;
 import io.kestra.core.repositories.ArrayListTotal;
 import io.kestra.webserver.responses.PagedResults;
@@ -57,14 +58,14 @@ public class AppController {
         return appService.get(grants(request), namespace, id);
     }
 
-    @Post(consumes = { MediaType.APPLICATION_YAML, MediaType.TEXT_PLAIN })
+    @Post(consumes = { KestraMediaTypes.APPLICATION_X_YAML, MediaType.APPLICATION_YAML, MediaType.TEXT_PLAIN })
     @ExecuteOn(TaskExecutors.IO)
     @Operation(tags = { "Apps" }, summary = "Create an app from its YAML definition")
     public App createApp(HttpRequest<?> request, @RequestBody(description = "The app YAML") @Body String source) {
         return appService.create(grants(request), source);
     }
 
-    @Put(uri = "/{namespace}/{id}", consumes = { MediaType.APPLICATION_YAML, MediaType.TEXT_PLAIN })
+    @Put(uri = "/{namespace}/{id}", consumes = { KestraMediaTypes.APPLICATION_X_YAML, MediaType.APPLICATION_YAML, MediaType.TEXT_PLAIN })
     @ExecuteOn(TaskExecutors.IO)
     @Operation(tags = { "Apps" }, summary = "Replace an app's YAML definition")
     public App updateApp(
