@@ -1566,6 +1566,11 @@
       }
     },
     "auditlogs": "Audit Logs",
+    "auditLogs": {
+      "method": "Method",
+      "resource": "Resource",
+      "path": "Path"
+    },
     "quotas": "Quotas",
     "iam": "IAM",
     "iamPage": {

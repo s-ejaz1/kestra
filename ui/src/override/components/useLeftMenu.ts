@@ -335,9 +335,6 @@ export function useLeftMenu() {
                         icon: {
                             element: FileDocumentOutline,
                         },
-                        attributes: {
-                            locked: true,
-                        },
                     },
                     {
                         id: "promote",

@@ -132,11 +132,19 @@ public class IamAuthorizationFilter implements HttpServerFilter {
         Set<Action> actions = actions(request.getMethod());
         if (routeMatch.get() instanceof UriRouteMatch<?, ?> uriRouteMatch) {
             namespace = Optional.ofNullable(uriRouteMatch.getVariableValues().get("namespace")).map(Object::toString).orElse(null);
-            if (HttpMethod.POST == request.getMethod() && READ_POST_ROUTE.matcher(uriRouteMatch.getRouteInfo().getUriMatchTemplate().toPathString()).matches()) {
+            if (isReadOnlyPost(request.getMethod(), uriRouteMatch)) {
                 actions = READ_ACTIONS;
             }
         }
         return grants.allows(permission, actions, namespace);
+    }
+
+    static Optional<Permission> permissionOf(Class<?> controller) {
+        return Optional.ofNullable(PERMISSIONS.get(controller));
+    }
+
+    static boolean isReadOnlyPost(HttpMethod method, UriRouteMatch<?, ?> routeMatch) {
+        return HttpMethod.POST == method && READ_POST_ROUTE.matcher(routeMatch.getRouteInfo().getUriMatchTemplate().toPathString()).matches();
     }
 
     private static Set<Action> actions(HttpMethod method) {
