@@ -7,7 +7,9 @@ import java.util.Optional;
 import org.reactivestreams.Publisher;
 
 import io.kestra.webserver.annotation.AnonymousAccess;
+import io.kestra.webserver.services.AuthenticatedUser;
 import io.kestra.webserver.services.BasicAuthService;
+import io.kestra.webserver.services.IamAuthenticationService;
 import io.kestra.webserver.utils.RequestUtils;
 
 import io.micronaut.context.annotation.Requires;
@@ -38,13 +40,16 @@ public class AuthenticationFilter implements HttpServerFilter {
     private static final String API_PREFIX = "/api/v1";
 
     private final BasicAuthService basicAuthService;
+    private final IamAuthenticationService iamAuthenticationService;
     private final String contextPath;
 
     @Inject
     public AuthenticationFilter(
         BasicAuthService basicAuthService,
+        IamAuthenticationService iamAuthenticationService,
         @Value("${micronaut.server.context-path:}") String contextPath) {
         this.basicAuthService = Objects.requireNonNull(basicAuthService);
+        this.iamAuthenticationService = Objects.requireNonNull(iamAuthenticationService);
         this.contextPath = RequestUtils.normalizeContextPath(contextPath);
     }
 
@@ -96,7 +101,8 @@ public class AuthenticationFilter implements HttpServerFilter {
                     return chain.proceed(request);
                 }
 
-                if (!basicAuthService.isAuthenticated(request)) {
+                Optional<AuthenticatedUser> authenticatedUser = iamAuthenticationService.authenticate(request);
+                if (authenticatedUser.isEmpty()) {
                     Boolean isFromLoginPage = Optional.ofNullable(request.getHeaders().get("Referer"))
                         .map(referer -> referer.split("\\?")[0].endsWith("/login"))
                         .orElse(false);
@@ -105,6 +111,7 @@ public class AuthenticationFilter implements HttpServerFilter {
                         .map(response -> isFromLoginPage || isScriptedRequest(request) ? response : response.header("WWW-Authenticate", "Basic"));
                 }
 
+                request.setAttribute(AuthenticatedUser.REQUEST_ATTRIBUTE, authenticatedUser.get());
                 return chain.proceed(request);
             });
     }

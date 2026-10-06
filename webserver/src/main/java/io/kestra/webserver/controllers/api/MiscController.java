@@ -27,6 +27,7 @@ import io.kestra.core.utils.VersionProvider;
 import io.kestra.webserver.configuration.CookiesConfiguration;
 import io.kestra.webserver.services.BasicAuthCredentials;
 import io.kestra.webserver.services.BasicAuthService;
+import io.kestra.webserver.services.IamAuthenticationService;
 import io.kestra.webserver.services.ai.AiServiceManager;
 
 import io.micronaut.context.ApplicationContext;
@@ -134,6 +135,9 @@ public class MiscController {
 
     @Inject
     private SecretService<String> secretService;
+
+    @Inject
+    private Optional<IamAuthenticationService> iamAuthenticationService = Optional.empty();
 
     @Get("/configs")
     @ExecuteOn(TaskExecutors.IO)
@@ -271,11 +275,11 @@ public class MiscController {
         description = "On success, issues an HttpOnly session cookie holding the credentials, plus a non-HttpOnly flag cookie the UI reads to know it is logged in."
     )
     public MutableHttpResponse<?> login(HttpRequest<?> request, @Body LoginRequest loginRequest) {
-        BasicAuthService service = basicAuthService
-            .orElseThrow(() -> new IllegalStateException("basicAuthService bean is required in OSS"));
+        IamAuthenticationService service = iamAuthenticationService
+            .orElseThrow(() -> new IllegalStateException("iamAuthenticationService bean is required in OSS"));
 
         String username = loginRequest.username() == null ? null : loginRequest.username().trim();
-        if (!service.validateCredentials(username, loginRequest.password())) {
+        if (service.validateCredentials(username, loginRequest.password()).isEmpty()) {
             return HttpResponse.unauthorized();
         }
 

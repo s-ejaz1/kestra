@@ -14,6 +14,9 @@ import io.kestra.core.models.executions.TaskOutput;
 import io.kestra.core.models.executions.statistics.ExecutionStatistic;
 import io.kestra.core.models.flows.FlowInterface;
 import io.kestra.core.models.flows.sla.SLAMonitor;
+import io.kestra.core.models.iam.IamBinding;
+import io.kestra.core.models.iam.IamRole;
+import io.kestra.core.models.iam.IamUser;
 import io.kestra.core.models.kv.PersistedKvMetadata;
 import io.kestra.core.models.namespaces.files.NamespaceFileMetadata;
 import io.kestra.core.models.secret.PersistedSecretMetadata;
@@ -139,6 +142,24 @@ public class JdbcTableConfigsFactory {
     @Named("secretmetadata")
     public InstantiableJdbcTableConfig secretMetadata() {
         return new InstantiableJdbcTableConfig("secretmetadata", PersistedSecretMetadata.class, "secret_metadata");
+    }
+
+    @Bean
+    @Named("iamusers")
+    public InstantiableJdbcTableConfig iamUsers() {
+        return new InstantiableJdbcTableConfig("iamusers", IamUser.class, "iam_users");
+    }
+
+    @Bean
+    @Named("iamroles")
+    public InstantiableJdbcTableConfig iamRoles() {
+        return new InstantiableJdbcTableConfig("iamroles", IamRole.class, "iam_roles");
+    }
+
+    @Bean
+    @Named("iambindings")
+    public InstantiableJdbcTableConfig iamBindings() {
+        return new InstantiableJdbcTableConfig("iambindings", IamBinding.class, "iam_bindings");
     }
 
     @Bean

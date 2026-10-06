@@ -47,8 +47,8 @@ public class BasicAuthService {
      * the login state directly instead of tracking a separate client-side flag. It carries no credentials.
      */
     public static final String BASIC_AUTH_FLAG_COOKIE_NAME = "kestraBasicAuthenticated";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile("(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*");
+    static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$");
+    static final Pattern PASSWORD_PATTERN = Pattern.compile("(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).*");
     private static final int EMAIL_PASSWORD_MAX_LEN = 256;
 
     /**
@@ -331,6 +331,14 @@ public class BasicAuthService {
      */
     private static String credentialsFingerprint(SaltedBasicAuthCredentials credentials) {
         return sha256Hex(credentials.getUsername() + ":" + credentials.getSalt() + ":" + credentials.getPassword());
+    }
+
+    /**
+     * The base64 {@code username:password} token carried by the request, from the
+     * {@value BASIC_AUTH_COOKIE_NAME} cookie or an {@code Authorization: Basic} header.
+     */
+    public Optional<String> extractToken(HttpRequest<?> request) {
+        return extractFromCookie(request).or(() -> extractFromAuthorizationHeader(request));
     }
 
     private Optional<String> extractFromCookie(HttpRequest<?> request) {
