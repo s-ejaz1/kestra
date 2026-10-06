@@ -112,7 +112,8 @@ const routes: KestraRouteRecord[] = [
     //Demo Pages
     {name: "dashboards/create", path: "/:tenant?/dashboards/new", component: () => import("../components/demo/Dashboards.vue")},
     {name: "dashboards/update", path: "/:tenant?/dashboards/:dashboard/edit", component: () => import("../components/demo/Dashboards.vue")},
-    {name: "apps/list", path: "/:tenant?/apps", component: () => import("../components/demo/Apps.vue")},
+    {name: "apps/list", path: "/:tenant?/apps", component: () => import("../components/apps/AppList.vue")},
+    {name: "apps/view", path: "/:tenant?/apps/:namespace/:id", component: () => import("../components/apps/AppRunner.vue")},
     {name: "tests/list", path: "/:tenant?/tests", component: () => import("../components/demo/Tests.vue")},
     {name: "assets/list", path: "/:tenant?/assets", component: () => import("../components/demo/Assets.vue")},
     {name: "cases/list", path: "/:tenant?/cases", component: () => import("../components/demo/Cases.vue")},

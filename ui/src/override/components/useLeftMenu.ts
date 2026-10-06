@@ -161,9 +161,6 @@ export function useLeftMenu() {
                         icon: {
                             element: LayersTripleOutline,
                         },
-                        attributes: {
-                            locked: true,
-                        },
                     },
                     {
                         id: "tests",

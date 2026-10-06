@@ -14,6 +14,7 @@ import io.kestra.core.models.executions.TaskOutput;
 import io.kestra.core.models.executions.statistics.ExecutionStatistic;
 import io.kestra.core.models.flows.FlowInterface;
 import io.kestra.core.models.flows.sla.SLAMonitor;
+import io.kestra.core.models.apps.App;
 import io.kestra.core.models.audit.AuditLog;
 import io.kestra.core.models.iam.IamBinding;
 import io.kestra.core.models.iam.IamRole;
@@ -143,6 +144,12 @@ public class JdbcTableConfigsFactory {
     @Named("secretmetadata")
     public InstantiableJdbcTableConfig secretMetadata() {
         return new InstantiableJdbcTableConfig("secretmetadata", PersistedSecretMetadata.class, "secret_metadata");
+    }
+
+    @Bean
+    @Named("apps")
+    public InstantiableJdbcTableConfig apps() {
+        return new InstantiableJdbcTableConfig("apps", App.class, "apps");
     }
 
     @Bean

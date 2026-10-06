@@ -17,6 +17,7 @@ public enum Permission {
     SECRET,
     COPILOT,
     MCP_SERVER,
+    APP,
     USER,
     ROLE,
     BINDING,

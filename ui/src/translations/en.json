@@ -1281,6 +1281,9 @@
       }
     },
     "apps": "Apps",
+    "appsPage": {
+      "create": "Create app"
+    },
     "promote": {
       "label": "Promote"
     },
