@@ -1568,6 +1568,22 @@
     "auditlogs": "Audit Logs",
     "quotas": "Quotas",
     "iam": "IAM",
+    "iamPage": {
+      "users": "Users",
+      "roles": "Roles",
+      "bindings": "Role bindings",
+      "add_user": "Add user",
+      "add_role": "Add role",
+      "add_binding": "Add role binding",
+      "first_name": "First name",
+      "last_name": "Last name",
+      "password_unchanged_hint": "Leave empty to keep the current password.",
+      "built_in": "Built-in",
+      "permissions": "Permissions",
+      "user": "User",
+      "role": "Role",
+      "all_namespaces": "All namespaces"
+    },
     "tenant": {
       "name": "Tenant",
       "names": "Tenants"

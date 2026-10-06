@@ -388,9 +388,6 @@ export function useLeftMenu() {
                         icon: {
                             element: ShieldAccount,
                         },
-                        attributes: {
-                            locked: true,
-                        },
                     },
                 ],
             },

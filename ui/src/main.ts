@@ -20,6 +20,7 @@ import {useCoreStore} from "./stores/core"
 import {useLayoutStore} from "./stores/layout"
 import {useUnsavedChangesStore} from "./stores/unsavedChanges"
 import {useMiscStore} from "override/stores/misc"
+import {useAuthStore} from "override/stores/auth"
 import {TASK_ICON_INJECTION_KEY} from "@kestra-io/design-system"
 import TaskIcon from "./components/plugins/TaskIcon.vue"
 import {registerServiceWorker} from "./utils/serviceWorker"
@@ -158,6 +159,7 @@ async function beforeResolve(router: Router, to: RouteLocationNormalized, from: 
 
         // Now that the user is authenticated, load the full instance configuration.
         await miscStore.loadConfigs()
+        await useAuthStore().loadMe()
     } catch (error) {
         console.error("Error during authentication check:", error)
         return handleAuthError(to, error)

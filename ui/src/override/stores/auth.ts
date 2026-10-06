@@ -1,36 +1,73 @@
 import {defineStore} from "pinia"
+import {useClient} from "@kestra-io/kestra-sdk"
+import {apiUrl} from "override/utils/route"
 
+export interface Grant {
+    namespace?: string | null;
+    permissions: Record<string, string[]>;
+}
+
+export interface MeData {
+    id: string;
+    email: string;
+    superAdmin: boolean;
+    grants: Grant[];
+}
+
+/**
+ * The permissions of the logged-in user. Until they are loaded every check passes, so that a page rendered before
+ * the first load is not emptied; the server enforces the permissions anyway.
+ */
 export class Me {
-    hasAny(_permission: string, _namespace?: string) {
-        return true
+    constructor(readonly data?: MeData) {
     }
 
-
-    hasAnyAction(_permission: string, _action: string, _namespace?: string) {
-        return true
+    get email() {
+        return this.data?.email
     }
 
-
-    isAllowed(_permission: string, _action: string, _namespace?: string) {
-        return true
+    get isSuperAdmin() {
+        return this.data === undefined || this.data.superAdmin
     }
 
-
-    isAllowedGlobal(_permission: string, _action: string) {
-        return true
+    hasAny(permission: string, namespace?: string) {
+        return this.matches(namespace, (grant) => (grant.permissions[permission] ?? []).length > 0)
     }
 
+    hasAnyAction(permission: string, action: string, namespace?: string) {
+        return this.isAllowed(permission, action, namespace)
+    }
 
-    hasAnyActionOnAnyNamespace(_permission: string, _action: string) {
-        return true
+    isAllowed(permission: string, action: string, namespace?: string) {
+        return this.matches(namespace, (grant) => (grant.permissions[permission] ?? []).includes(action))
+    }
+
+    isAllowedGlobal(permission: string, action: string) {
+        if (this.isSuperAdmin) return true
+        return this.data!.grants.some(grant => !grant.namespace && (grant.permissions[permission] ?? []).includes(action))
+    }
+
+    hasAnyActionOnAnyNamespace(permission: string, action: string) {
+        return this.isAllowed(permission, action)
     }
 
     hasAnyRole() {
-        return true
+        return this.isSuperAdmin || this.data!.grants.length > 0
     }
 
-    getNamespacesForAction(_permission: string, _action: string): string[] {
-        return []
+    getNamespacesForAction(permission: string, action: string): string[] {
+        if (this.data === undefined) return []
+        return this.data.grants
+            .filter(grant => grant.namespace && (grant.permissions[permission] ?? []).includes(action))
+            .map(grant => grant.namespace as string)
+    }
+
+    // Without a namespace, a grant on any namespace is enough.
+    private matches(namespace: string | undefined, predicate: (grant: Grant) => boolean) {
+        if (this.isSuperAdmin) return true
+        return this.data!.grants
+            .filter(grant => !grant.namespace || namespace === undefined || namespace === grant.namespace || namespace.startsWith(`${grant.namespace}.`))
+            .some(predicate)
     }
 }
 
@@ -48,7 +85,12 @@ export const useAuthStore = defineStore("auth", {
         auths: undefined as AuthMethods | undefined,
     }),
     actions: {
+        async loadMe() {
+            const response = await useClient().get<MeData>(`${apiUrl()}/me`)
+            this.user = new Me(response.data)
+        },
         logout(){
+            this.user = new Me()
             return Promise.resolve(true)
         },
         correction(){
