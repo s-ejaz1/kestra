@@ -15,6 +15,13 @@ type NamespaceSearchParameters = NonNullable<Parameters<typeof NamespaceAPI.sear
 export type NamespaceSearchOptions = Omit<NamespaceSearchParameters, "sort"> & {commit?: boolean; sort?: string}
 type DeleteKvsRequest = Omit<Parameters<typeof KvAPI.deleteKeyValues>[0], "namespace">
 
+export interface SecretPayload {
+    key?: string;
+    value?: string;
+    description?: string;
+    tags?: {key?: string; value?: string}[];
+}
+
 function base(namespace: string) {
     return `${apiUrl()}/namespaces/${namespace}`
 }
@@ -32,6 +39,7 @@ export const useBaseNamespacesStore = () => {
     const inheritedKVs = ref<KvEntry[] | undefined>(undefined)
     const inheritedKVModalVisible = ref(false)
     const addKvModalVisible = ref(false)
+    const addSecretModalVisible = ref(false)
     const autocomplete = ref<string[]>()
     const existing = ref(true)
 
@@ -162,16 +170,17 @@ export const useBaseNamespacesStore = () => {
         ]
     }
 
-    async function createSecrets(_: {namespace: string; secret: unknown}) {
-        // NOOP IN OSS
+    async function createSecrets(payload: {namespace: string; secret: SecretPayload}) {
+        await axios.put(`${base(payload.namespace)}/secrets`, payload.secret)
     }
 
-    async function patchSecret(_: {namespace: string; secret: unknown}) {
-        // NOOP IN OSS
+    async function patchSecret(payload: {namespace: string; secret: SecretPayload}) {
+        const {key, description, tags} = payload.secret
+        await axios.patch(`${base(payload.namespace)}/secrets/${encodeURIComponent(key ?? "")}`, {description, tags})
     }
 
-    async function deleteSecrets(_: {namespace: string; key: string}) {
-        // NOOP IN OSS
+    async function deleteSecrets(payload: {namespace: string; key: string}) {
+        await axios.delete(`${base(payload.namespace)}/secrets/${encodeURIComponent(payload.key)}`)
     }
 
     async function loadInheritedVariables(_: {id: string, commit?: boolean}) {
@@ -309,6 +318,7 @@ export const useBaseNamespacesStore = () => {
         inheritedSecrets,
         inheritedKVModalVisible,
         addKvModalVisible,
+        addSecretModalVisible,
         kvsList,
         kv,
         loadInheritedKVs,

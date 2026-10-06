@@ -16,6 +16,7 @@ import io.kestra.core.models.flows.FlowInterface;
 import io.kestra.core.models.flows.sla.SLAMonitor;
 import io.kestra.core.models.kv.PersistedKvMetadata;
 import io.kestra.core.models.namespaces.files.NamespaceFileMetadata;
+import io.kestra.core.models.secret.PersistedSecretMetadata;
 import io.kestra.core.models.topologies.FlowTopology;
 import io.kestra.core.models.triggers.multipleflows.MultipleConditionWindow;
 import io.kestra.core.runners.*;
@@ -132,6 +133,12 @@ public class JdbcTableConfigsFactory {
     @Named("kvmetadata")
     public InstantiableJdbcTableConfig kvMetadata() {
         return new InstantiableJdbcTableConfig("kvmetadata", PersistedKvMetadata.class, "kv_metadata");
+    }
+
+    @Bean
+    @Named("secretmetadata")
+    public InstantiableJdbcTableConfig secretMetadata() {
+        return new InstantiableJdbcTableConfig("secretmetadata", PersistedSecretMetadata.class, "secret_metadata");
     }
 
     @Bean

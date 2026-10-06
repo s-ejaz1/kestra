@@ -6,11 +6,11 @@ import java.util.List;
 import io.kestra.core.models.QueryFilter;
 import io.kestra.core.models.QueryFilter.Resource;
 import io.kestra.core.repositories.ArrayListTotal;
-import io.kestra.core.secret.SecretService;
 import io.kestra.core.tenant.TenantService;
 import io.kestra.webserver.converters.QueryFilterFormat;
 import io.kestra.webserver.models.api.secret.ApiSecretListResponse;
 import io.kestra.webserver.models.api.secret.ApiSecretMeta;
+import io.kestra.webserver.services.SecretStoreService;
 import io.kestra.webserver.utils.PageableUtils;
 
 import io.micronaut.core.annotation.Nullable;
@@ -32,7 +32,7 @@ public class SecretController<META extends ApiSecretMeta> {
     protected TenantService tenantService;
 
     @Inject
-    protected SecretService<String> secretService;
+    protected SecretStoreService secretStoreService;
 
     protected String sortMapper(String key) {
         if (key != null && key.equals("key")) {
@@ -53,12 +53,12 @@ public class SecretController<META extends ApiSecretMeta> {
 
         Pageable pageable = PageableUtils.from(page, size, sort, this::sortMapper);
 
-        ArrayListTotal<String> items = secretService.list(pageable, tenantId, filters);
+        ArrayListTotal<ApiSecretMeta> items = secretStoreService.list(pageable, tenantId, filters);
         //noinspection unchecked
         return HttpResponse.ok(
             (ApiSecretListResponse<META>) new ApiSecretListResponse<>(
-                true,
-                items.map(ApiSecretMeta::new),
+                secretStoreService.isReadOnly(),
+                items,
                 items.getTotal()
             )
         );

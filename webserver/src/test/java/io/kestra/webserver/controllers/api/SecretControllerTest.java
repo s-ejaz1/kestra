@@ -27,7 +27,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.total()).isEqualTo(4L);
         assertThat(response.results()).hasSize(4);
         assertThat(response.results().stream().map(ApiSecretMeta::getKey).toList())
@@ -41,7 +41,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.total()).isEqualTo(4L);
         assertThat(response.results()).hasSize(2);
     }
@@ -53,7 +53,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.total()).isEqualTo(4L);
         assertThat(response.results()).hasSize(2);
     }
@@ -65,7 +65,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.results()).isNotEmpty();
         assertThat(response.results().stream().map(ApiSecretMeta::getKey).toList())
             .anyMatch(key -> key.toLowerCase().contains("key"));
@@ -78,7 +78,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.total()).isEqualTo(1L);
         assertThat(response.results()).hasSize(1);
         assertThat(response.results().get(0).getKey()).isEqualTo("PASSWORD");
@@ -91,7 +91,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.results()).isNotEmpty();
         assertThat(response.results().stream().map(ApiSecretMeta::getKey).toList())
             .contains("WEBHOOK_KEY");
@@ -104,7 +104,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.total()).isEqualTo(4L);
         assertThat(response.results()).hasSize(4);
     }
@@ -116,7 +116,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.total()).isEqualTo(4L);
         assertThat(response.results()).hasSize(3);
     }
@@ -129,7 +129,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.results()).isNotNull();
         assertThat(response.results()).hasSize(4);
     }
@@ -141,7 +141,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.results()).isNotNull();
         assertThat(response.total()).isEqualTo(4L);
     }
@@ -153,7 +153,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.total()).isEqualTo(0L);
         assertThat(response.results()).isEmpty();
     }
@@ -165,7 +165,7 @@ class SecretControllerTest {
             ApiSecretListResponse.class
         );
 
-        assertThat(response.readOnly()).isTrue();
+        assertThat(response.readOnly()).isFalse();
         assertThat(response.total()).isEqualTo(4L);
         assertThat(response.results()).hasSize(1);
     }

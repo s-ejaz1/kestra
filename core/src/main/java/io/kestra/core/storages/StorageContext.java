@@ -41,6 +41,8 @@ public class StorageContext {
     static final String PREFIX_FORMAT_NAMESPACE_FILE = "/%s/_files";
     // /{namespace}/_kv
     static final String PREFIX_FORMAT_KV = "/%s/_kv";
+    // /{namespace}/_secrets
+    static final String PREFIX_FORMAT_SECRETS = "/%s/_secrets";
     // /{namespace}/{flow-id}
     static final String PREFIX_FORMAT_FLOWS = "/%s/%s";
     // /{namespace}/{flow-id}/executions/{execution-id}
@@ -327,6 +329,10 @@ public class StorageContext {
 
     public static String kvPrefix(String namespace) {
         return String.format(PREFIX_FORMAT_KV, namespace.replace(".", "/"));
+    }
+
+    public static String secretsPrefix(String namespace) {
+        return String.format(PREFIX_FORMAT_SECRETS, namespace.replace(".", "/"));
     }
 
     /**

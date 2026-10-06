@@ -23,12 +23,20 @@
         :label="$t('kv.add')"
         @click="namespacesStore.addKvModalVisible = true"
     />
+
+    <Action
+        v-if="tab === 'secrets' && secretsEnabled"
+        :label="$t('secret.add')"
+        @click="namespacesStore.addSecretModalVisible = true"
+    />
 </template>
 
 <script setup lang="ts">
     import {computed, Ref} from "vue"
     import {useRoute, useRouter} from "vue-router"
     import {useNamespacesStore} from "override/stores/namespaces"
+    import {useMiscStore} from "override/stores/misc"
+    import type {MiscControllerConfiguration} from "@kestra-io/kestra-sdk"
     import Action from "../../../components/namespaces/components/buttons/Action.vue"
     import Dashboards from "override/components/dashboard/Selector.vue"
     import {ALLOWED_CREATION_ROUTES} from "../../../components/dashboard/composables/useDashboards"
@@ -41,6 +49,10 @@
     const route = useRoute()
     const router = useRouter()
     const namespacesStore = useNamespacesStore()
+    const miscStore = useMiscStore()
+
+    type ConfigsWithSecrets = MiscControllerConfiguration & {secretsEnabled?: boolean}
+    const secretsEnabled = computed(() => (miscStore.configs as ConfigsWithSecrets | undefined)?.secretsEnabled === true)
 
     const onSelectDashboard = (value: string) => {
         router.replace({

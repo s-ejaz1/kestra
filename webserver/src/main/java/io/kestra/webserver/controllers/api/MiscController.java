@@ -20,6 +20,7 @@ import io.kestra.core.reporter.reports.FeatureUsageReport;
 import io.kestra.core.runners.pebble.PebbleExpressionService;
 import io.kestra.core.runners.pebble.PebbleFunction;
 import io.kestra.core.services.InstanceService;
+import io.kestra.core.secret.SecretService;
 import io.kestra.core.services.VersionService;
 import io.kestra.core.utils.EditionProvider;
 import io.kestra.core.utils.VersionProvider;
@@ -131,6 +132,9 @@ public class MiscController {
     @Inject
     protected EditionProvider editionProvider;
 
+    @Inject
+    private SecretService<String> secretService;
+
     @Get("/configs")
     @ExecuteOn(TaskExecutors.IO)
     @Operation(
@@ -166,7 +170,8 @@ public class MiscController {
             .pluginsHash(pluginRegistry.hash())
             .chartDefaultDuration(this.chartDefaultDuration)
             .flowTemplate(this.flowTemplate)
-            .isPluginAutoInstallEnabled(pluginAutoInstallService.isEnabled());
+            .isPluginAutoInstallEnabled(pluginAutoInstallService.isEnabled())
+            .secretsEnabled(secretService.isStoreEnabled());
 
         if (this.environmentName != null || this.environmentColor != null) {
             builder.environment(
@@ -388,6 +393,8 @@ public class MiscController {
 
         @JsonInclude
         Boolean isPluginEndpointsEnabled;
+
+        Boolean secretsEnabled;
     }
 
     @Value
