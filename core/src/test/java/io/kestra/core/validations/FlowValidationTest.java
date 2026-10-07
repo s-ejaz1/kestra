@@ -27,7 +27,6 @@ import io.kestra.core.utils.TestsUtils;
 import io.kestra.plugin.core.log.Log;
 
 import jakarta.inject.Inject;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -529,7 +528,7 @@ class FlowValidationTest {
     }
 
     @Test
-    void eeAllowsDefiningAssets() {
+    void shouldAllowDefiningAssets() {
         Flow flow = Flow.builder()
             .id(TestsUtils.randomString())
             .namespace(TestsUtils.randomNamespace())
@@ -549,11 +548,8 @@ class FlowValidationTest {
 
         Optional<ConstraintViolationException> violations = modelValidator.isValid(flow);
 
-        assertThat(violations.isPresent()).isEqualTo(true);
-        assertThat(violations.get().getConstraintViolations().stream().map(ConstraintViolation::getMessage)).satisfiesExactly(
-            message -> assertThat(message).contains("Task 'log' can't have any `assets` because assets are only available in Enterprise Edition.")
-        );
-    };
+        assertThat(violations).isEmpty();
+    }
 
     @Test
     void shouldNotFailValidationWhenSecretPropertyHasPlainTextValue() {

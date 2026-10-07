@@ -1284,6 +1284,16 @@
     "appsPage": {
       "create": "Create app"
     },
+    "assetsPage": {
+      "create": "Create asset",
+      "search": "Search by id or name",
+      "displayName": "Display name",
+      "updated": "Updated",
+      "overview": "Overview",
+      "lineage": "Lineage",
+      "usages": "Executions",
+      "direction": "Direction"
+    },
     "testsPage": {
       "create": "Create test suite",
       "run": "Run",

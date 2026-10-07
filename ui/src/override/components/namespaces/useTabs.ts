@@ -12,6 +12,7 @@ import DemoNamespace from "../../../components/demo/Namespace.vue"
 
 import KVTable from "../../../components/kv/KVTable.vue"
 import NamespaceSecrets from "../../../components/secrets/NamespaceSecrets.vue"
+import AssetList from "../../../components/assets/AssetList.vue"
 
 const lockedProps = (tab: string) => ({
     locked: true,
@@ -42,9 +43,11 @@ export function useTabs() {
                 fullContainer: true,
             },
             {
-                ...lockedProps("assets"),
                 name: "assets",
                 title: t("assets.title"),
+                component: AssetList,
+                props: {namespace},
+                fullContainer: true,
             },
             {
                 ...lockedProps("variables"),

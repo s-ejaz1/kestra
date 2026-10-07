@@ -72,9 +72,8 @@ export const EXECUTION_TAB_ROUTES: RouteRecordRaw[] = [
     {
         name: `${EXECUTION_PARENT_ROUTE}/assets`,
         path: "assets",
-        component: () => import("../demo/Assets.vue"),
-        props: {topbar: false},
-        meta: {tab: "assets", title: "assets.title", maximized: true, locked: true},
+        component: () => import("../assets/ExecutionAssets.vue"),
+        meta: {tab: "assets", title: "assets.title", maximized: true},
     },
 ]
 

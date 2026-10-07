@@ -19,6 +19,7 @@ public enum Permission {
     MCP_SERVER,
     APP,
     TEST,
+    ASSET,
     USER,
     ROLE,
     BINDING,

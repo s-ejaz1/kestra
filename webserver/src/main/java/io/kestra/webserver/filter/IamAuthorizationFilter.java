@@ -85,7 +85,8 @@ public class IamAuthorizationFilter implements HttpServerFilter {
         Map.entry(McpServerController.class, Permission.MCP_SERVER),
         Map.entry(McpToolController.class, Permission.MCP_SERVER),
         Map.entry(AppController.class, Permission.APP),
-        Map.entry(TestSuiteController.class, Permission.TEST)
+        Map.entry(TestSuiteController.class, Permission.TEST),
+        Map.entry(AssetController.class, Permission.ASSET)
     );
 
     private final IamService iamService;

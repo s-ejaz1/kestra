@@ -10,4 +10,5 @@ export default {
     MCP_SERVER: "MCP_SERVER",
     APP: "APP",
     TEST: "TEST",
+    ASSET: "ASSET",
 } as const

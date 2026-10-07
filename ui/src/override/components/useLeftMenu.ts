@@ -200,9 +200,6 @@ export function useLeftMenu() {
                         icon: {
                             element: PackageVariantClosed,
                         },
-                        attributes: {
-                            locked: true,
-                        },
                     },
                     {
                         id: "cases",
