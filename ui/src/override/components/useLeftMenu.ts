@@ -211,9 +211,6 @@ export function useLeftMenu() {
                         icon: {
                             element: AlertCircleOutline,
                         },
-                        attributes: {
-                            locked: true,
-                        },
                     },
                     {
                         id: "plugins",

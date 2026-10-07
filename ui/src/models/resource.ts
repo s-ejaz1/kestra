@@ -11,4 +11,5 @@ export default {
     APP: "APP",
     TEST: "TEST",
     ASSET: "ASSET",
+    CASE: "CASE",
 } as const

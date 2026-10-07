@@ -20,6 +20,7 @@ public enum Permission {
     APP,
     TEST,
     ASSET,
+    CASE,
     USER,
     ROLE,
     BINDING,

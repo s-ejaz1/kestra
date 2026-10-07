@@ -1,4 +1,5 @@
 import type {Component} from "vue"
+import OpenCaseAction from "../../../components/cases/OpenCaseAction.vue"
 
 export interface ExecutionExtraColumn {
     prop: string;
@@ -24,4 +25,4 @@ export const bulkActionComponents: Component[] = []
 // reachable from every execution tab. Each component receives the `execution` prop and gates
 // itself on its own feature flag / permissions. Rendered just before Delete, so the
 // destructive action stays last.
-export const overflowActionComponents: Component[] = []
+export const overflowActionComponents: Component[] = [OpenCaseAction]

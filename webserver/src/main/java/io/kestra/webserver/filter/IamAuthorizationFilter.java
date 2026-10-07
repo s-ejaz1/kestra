@@ -49,6 +49,8 @@ public class IamAuthorizationFilter implements HttpServerFilter {
 
     /** POST routes that run something, so they need EXECUTE rather than CREATE. */
     private static final Pattern EXECUTE_POST_ROUTE = Pattern.compile(".*/tests/\\{namespace}/\\{id}/run$");
+    /** Routes that change part of a case, so they need UPDATE whether they add (POST) or remove (DELETE) it. */
+    private static final Pattern CASE_PART_ROUTE = Pattern.compile(".*/cases/\\{id}/(status|comments|executions|assets)(/.*)?$");
 
     private static final Set<Class<?>> OPEN_CONTROLLERS = Set.of(
         MiscController.class,
@@ -86,7 +88,8 @@ public class IamAuthorizationFilter implements HttpServerFilter {
         Map.entry(McpToolController.class, Permission.MCP_SERVER),
         Map.entry(AppController.class, Permission.APP),
         Map.entry(TestSuiteController.class, Permission.TEST),
-        Map.entry(AssetController.class, Permission.ASSET)
+        Map.entry(AssetController.class, Permission.ASSET),
+        Map.entry(CaseController.class, Permission.CASE)
     );
 
     private final IamService iamService;
@@ -142,7 +145,7 @@ public class IamAuthorizationFilter implements HttpServerFilter {
         Set<Action> actions = actions(request.getMethod());
         if (routeMatch.get() instanceof UriRouteMatch<?, ?> uriRouteMatch) {
             namespace = Optional.ofNullable(uriRouteMatch.getVariableValues().get("namespace")).map(Object::toString).orElse(null);
-            actions = postActions(request.getMethod(), uriRouteMatch).orElse(actions);
+            actions = routeActions(request.getMethod(), uriRouteMatch).orElse(actions);
         }
         if (grants.allows(permission, actions, namespace)) {
             return Optional.empty();
@@ -163,12 +166,16 @@ public class IamAuthorizationFilter implements HttpServerFilter {
         return HttpMethod.POST == method && READ_POST_ROUTE.matcher(routeMatch.getRouteInfo().getUriMatchTemplate().toPathString()).matches();
     }
 
-    private static Optional<Set<Action>> postActions(HttpMethod method, UriRouteMatch<?, ?> routeMatch) {
+    private static Optional<Set<Action>> routeActions(HttpMethod method, UriRouteMatch<?, ?> routeMatch) {
+        String template = routeMatch.getRouteInfo().getUriMatchTemplate().toPathString();
         if (isReadOnlyPost(method, routeMatch)) {
             return Optional.of(READ_ACTIONS);
         }
-        if (HttpMethod.POST == method && EXECUTE_POST_ROUTE.matcher(routeMatch.getRouteInfo().getUriMatchTemplate().toPathString()).matches()) {
+        if (HttpMethod.POST == method && EXECUTE_POST_ROUTE.matcher(template).matches()) {
             return Optional.of(Set.of(Action.EXECUTE));
+        }
+        if ((HttpMethod.POST == method || HttpMethod.DELETE == method) && CASE_PART_ROUTE.matcher(template).matches()) {
+            return Optional.of(Set.of(Action.UPDATE));
         }
         return Optional.empty();
     }
