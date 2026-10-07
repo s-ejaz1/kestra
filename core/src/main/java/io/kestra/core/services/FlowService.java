@@ -174,6 +174,7 @@ public class FlowService {
             pluginAutoInstallService.installMissingPlugins(flow.getSource());
             FlowWithSource parsed = flowParsingService.parse(flow.getTenantId(), flow.getSource(), true);
             modelValidator.validate(flowParsingService.parseForValidation(parsed));
+            throwOnGovernanceViolation(parsed);
             throwOnCyclicDependency(parsed);
         }
 
@@ -213,6 +214,7 @@ public class FlowService {
             pluginAutoInstallService.installMissingPlugins(flow.getSource());
             FlowWithSource parsed = flowParsingService.parse(flow.getTenantId(), flow.getSource(), true);
             modelValidator.validate(flowParsingService.parseForValidation(parsed));
+            throwOnGovernanceViolation(parsed);
             throwOnCyclicDependency(parsed);
         }
 
@@ -222,6 +224,13 @@ public class FlowService {
         impactDownstreamConsumers(updated);
 
         return updated;
+    }
+
+    private void throwOnGovernanceViolation(FlowWithSource flow) throws FlowProcessingException {
+        List<String> blocking = flowParsingService.governance(flow).blocking();
+        if (!blocking.isEmpty()) {
+            throw new IllegalArgumentException("The flow is blocked by governance policies: %s".formatted(String.join(" ", blocking)));
+        }
     }
 
     /**
@@ -522,12 +531,15 @@ public class FlowService {
                     }
 
                     FlowWithSource parsedFlow = flowParsingService.parseForValidation(flow);
+                    FlowParsingService.GovernanceReport governance = flowParsingService.governance(flow);
                     constraintsBuilder.deprecationPaths(deprecationPaths(parsedFlow));
-                    constraintsBuilder.warnings(warnings(parsedFlow, tenantId));
+                    constraintsBuilder.warnings(ListUtils.concat(ListUtils.concat(warnings(parsedFlow, tenantId), governance.warnings()), governance.notices()));
                     constraintsBuilder.flow(flow.getId());
                     constraintsBuilder.namespace(flow.getNamespace());
 
-                    if (report == null) {
+                    if (!governance.blocking().isEmpty()) {
+                        constraintsBuilder.errors(governance.blocking().stream().map(ValidationError::of).toList());
+                    } else if (report == null) {
                         modelValidator.validate(parsedFlow);
                         throwOnCyclicDependency(parsedFlow);
                     } else {

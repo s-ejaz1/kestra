@@ -19,6 +19,7 @@ import io.kestra.core.models.assets.Asset;
 import io.kestra.core.models.assets.AssetLineageEdge;
 import io.kestra.core.models.assets.AssetUsage;
 import io.kestra.core.models.audit.AuditLog;
+import io.kestra.core.models.policies.Policy;
 import io.kestra.core.models.cases.Case;
 import io.kestra.core.models.cases.CaseActivity;
 import io.kestra.core.test.TestSuite;
@@ -151,6 +152,12 @@ public class JdbcTableConfigsFactory {
     @Named("secretmetadata")
     public InstantiableJdbcTableConfig secretMetadata() {
         return new InstantiableJdbcTableConfig("secretmetadata", PersistedSecretMetadata.class, "secret_metadata");
+    }
+
+    @Bean
+    @Named("policies")
+    public InstantiableJdbcTableConfig policies() {
+        return new InstantiableJdbcTableConfig("policies", Policy.class, "policies");
     }
 
     @Bean

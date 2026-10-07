@@ -1,5 +1,6 @@
 package io.kestra.core.services;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -151,6 +152,14 @@ public class FlowParsingService {
     }
 
     /**
+     * What governance would do to the flow: the violations blocking it from being saved or run, the ones only reported, and the
+     * values it injects. The open-source edition has no governance and reports nothing.
+     */
+    public GovernanceReport governance(final FlowInterface flow) throws FlowProcessingException {
+        return GovernanceReport.EMPTY;
+    }
+
+    /**
      * Converts the given abstract flow into a {@link FlowWithSource} without re-parsing it. Used by runtime
      * callers to degrade to the flow as stored when {@link #parseForRuntime(FlowInterface)} fails.
      */
@@ -243,5 +252,14 @@ public class FlowParsingService {
             .deleted(isDeleted)
             .source(source)
             .build();
+    }
+
+    /**
+     * @param blocking violations that prevent the flow from being saved or run
+     * @param warnings violations only reported, from policies being rolled out
+     * @param notices the values governance injects or replaces, so that flow authors can see them
+     */
+    public record GovernanceReport(List<String> blocking, List<String> warnings, List<String> notices) {
+        public static final GovernanceReport EMPTY = new GovernanceReport(List.of(), List.of(), List.of());
     }
 }

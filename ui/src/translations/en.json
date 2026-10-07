@@ -1284,6 +1284,17 @@
     "appsPage": {
       "create": "Create app"
     },
+    "policiesPage": {
+      "create": "Create policy",
+      "scope": "Scope",
+      "tenant": "Whole tenant",
+      "enforcement": "Enforcement",
+      "rules": "Rules",
+      "preview": "Preview on a flow",
+      "previewHint": "See the flow as it runs with the policies in scope: the values they inject and the violations they find.",
+      "previewRun": "Preview",
+      "previewClean": "No policy changes or blocks this flow."
+    },
     "casesPage": {
       "create": "New case",
       "edit": "Edit case",

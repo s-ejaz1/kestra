@@ -265,9 +265,6 @@ export function useLeftMenu() {
                         icon: {
                             element: ShieldCheckOutline,
                         },
-                        attributes: {
-                            locked: true,
-                        },
                     },
                     {
                         id: "kv",
