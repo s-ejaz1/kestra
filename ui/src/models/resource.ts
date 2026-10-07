@@ -9,4 +9,5 @@ export default {
     COPILOT: "COPILOT",
     MCP_SERVER: "MCP_SERVER",
     APP: "APP",
+    TEST: "TEST",
 } as const

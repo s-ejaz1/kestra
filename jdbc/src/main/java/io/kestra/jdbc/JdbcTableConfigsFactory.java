@@ -16,6 +16,8 @@ import io.kestra.core.models.flows.FlowInterface;
 import io.kestra.core.models.flows.sla.SLAMonitor;
 import io.kestra.core.models.apps.App;
 import io.kestra.core.models.audit.AuditLog;
+import io.kestra.core.test.TestSuite;
+import io.kestra.core.test.TestSuiteRunEntity;
 import io.kestra.core.models.iam.IamBinding;
 import io.kestra.core.models.iam.IamRole;
 import io.kestra.core.models.iam.IamUser;
@@ -144,6 +146,18 @@ public class JdbcTableConfigsFactory {
     @Named("secretmetadata")
     public InstantiableJdbcTableConfig secretMetadata() {
         return new InstantiableJdbcTableConfig("secretmetadata", PersistedSecretMetadata.class, "secret_metadata");
+    }
+
+    @Bean
+    @Named("testsuites")
+    public InstantiableJdbcTableConfig testSuites() {
+        return new InstantiableJdbcTableConfig("testsuites", TestSuite.class, "test_suites");
+    }
+
+    @Bean
+    @Named("testsuiteruns")
+    public InstantiableJdbcTableConfig testSuiteRuns() {
+        return new InstantiableJdbcTableConfig("testsuiteruns", TestSuiteRunEntity.class, "test_suite_runs");
     }
 
     @Bean

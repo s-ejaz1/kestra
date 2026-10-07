@@ -47,6 +47,9 @@ public class IamAuthorizationFilter implements HttpServerFilter {
     /** POST routes that only read data, because their parameters do not fit in a query string. */
     private static final Pattern READ_POST_ROUTE = Pattern.compile(".*/(autocomplete|latest|graph|validate(/.*)?|preview|export(/.*)?)$");
 
+    /** POST routes that run something, so they need EXECUTE rather than CREATE. */
+    private static final Pattern EXECUTE_POST_ROUTE = Pattern.compile(".*/tests/\\{namespace}/\\{id}/run$");
+
     private static final Set<Class<?>> OPEN_CONTROLLERS = Set.of(
         MiscController.class,
         IamController.class,
@@ -81,7 +84,8 @@ public class IamAuthorizationFilter implements HttpServerFilter {
         Map.entry(AiAgentController.class, Permission.COPILOT),
         Map.entry(McpServerController.class, Permission.MCP_SERVER),
         Map.entry(McpToolController.class, Permission.MCP_SERVER),
-        Map.entry(AppController.class, Permission.APP)
+        Map.entry(AppController.class, Permission.APP),
+        Map.entry(TestSuiteController.class, Permission.TEST)
     );
 
     private final IamService iamService;
@@ -137,9 +141,7 @@ public class IamAuthorizationFilter implements HttpServerFilter {
         Set<Action> actions = actions(request.getMethod());
         if (routeMatch.get() instanceof UriRouteMatch<?, ?> uriRouteMatch) {
             namespace = Optional.ofNullable(uriRouteMatch.getVariableValues().get("namespace")).map(Object::toString).orElse(null);
-            if (isReadOnlyPost(request.getMethod(), uriRouteMatch)) {
-                actions = READ_ACTIONS;
-            }
+            actions = postActions(request.getMethod(), uriRouteMatch).orElse(actions);
         }
         if (grants.allows(permission, actions, namespace)) {
             return Optional.empty();
@@ -158,6 +160,16 @@ public class IamAuthorizationFilter implements HttpServerFilter {
 
     static boolean isReadOnlyPost(HttpMethod method, UriRouteMatch<?, ?> routeMatch) {
         return HttpMethod.POST == method && READ_POST_ROUTE.matcher(routeMatch.getRouteInfo().getUriMatchTemplate().toPathString()).matches();
+    }
+
+    private static Optional<Set<Action>> postActions(HttpMethod method, UriRouteMatch<?, ?> routeMatch) {
+        if (isReadOnlyPost(method, routeMatch)) {
+            return Optional.of(READ_ACTIONS);
+        }
+        if (HttpMethod.POST == method && EXECUTE_POST_ROUTE.matcher(routeMatch.getRouteInfo().getUriMatchTemplate().toPathString()).matches()) {
+            return Optional.of(Set.of(Action.EXECUTE));
+        }
+        return Optional.empty();
     }
 
     private static Set<Action> actions(HttpMethod method) {

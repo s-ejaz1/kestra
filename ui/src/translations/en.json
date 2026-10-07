@@ -1284,6 +1284,17 @@
     "appsPage": {
       "create": "Create app"
     },
+    "testsPage": {
+      "create": "Create test suite",
+      "run": "Run",
+      "lastRun": "Last run",
+      "never": "Never run",
+      "results": "Results of {id}",
+      "assertion": "Assertion",
+      "expected": "Expected",
+      "actual": "Actual",
+      "errors": "Errors"
+    },
     "promote": {
       "label": "Promote"
     },

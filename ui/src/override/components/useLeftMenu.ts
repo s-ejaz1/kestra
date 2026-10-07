@@ -172,9 +172,6 @@ export function useLeftMenu() {
                         icon: {
                             element: FlaskOutline,
                         },
-                        attributes: {
-                            locked: true,
-                        },
                     },
                 ],
             },
